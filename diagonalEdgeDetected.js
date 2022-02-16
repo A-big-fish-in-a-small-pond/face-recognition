@@ -2,18 +2,26 @@
 //  output : edge detected
 
 var pixels = require("image-pixels");
+var sizeOf = require("image-size");
 var fs = require("fs");
 const Jimp = require("jimp");
 
 async function edgeDetected(point2pointDistance, edgedetectDistance) {
     // load single source
-    var { data, width, height } = await pixels("./image/Lenna.png");
-    console.log(data.length);
+
+    let width;
+    let height;
+    sizeOf("./image/result/sample1.png", function (err, dimensions) {
+        width = dimensions.width;
+        height = dimensions.height;
+    });
+    var { data } = await pixels("./image/result/sample1.png");
+
     let resultdata = [];
     let count = 0;
-    for (let i = 0; i < 420; i++) {
+    for (let i = 0; i < width; i++) {
         resultdata[i] = [];
-        for (let j = 0; j < 578; j++) {
+        for (let j = 0; j < height; j++) {
             resultdata[i][j] = [];
             for (let k = 0; k < 4; k++) {
                 if (k != 3) {
@@ -25,20 +33,26 @@ async function edgeDetected(point2pointDistance, edgedetectDistance) {
         }
     }
 
-    //resultdata : 1차원 데이터를 3차원 데이터로 width * height * 4(R, G, B, A)
+    //resultdata : 1차원 데이터를 3차원 데이터로 width * height * 4(R, G, B, A) g   dfdfasdf
     let edgeData_diagonal = [];
-    for (let i = 0; i < resultdata.length - point2pointDistance; i++) {
+
+    for (let i = 0; i < width - point2pointDistance - 1; i++) {
         //width version
         edgeData_diagonal[i] = [];
-        for (let j = 0; j < resultdata.length - point2pointDistance; j++) {
+        for (let j = 0; j < height - point2pointDistance - 1; j++) {
             //data[i][j] = r g b a
-            edgeData_diagonal[i][j] = colorPointDistance(resultdata[i][j], resultdata[i + point2pointDistance][j + point2pointDistance]);
+            try {
+                edgeData_diagonal[i][j] = colorPointDistance(resultdata[i][j], resultdata[i + point2pointDistance][j + point2pointDistance]);
+            } catch (e) {
+                console.log("a " + resultdata[i][j]);
+                console.log("b " + resultdata[i + point2pointDistance][j + point2pointDistance]);
+            }
         }
     }
     //edgeData_diagonal : 자기 자신과 바로 오른쪽 점과의 공간좌표 RGB 에서의 거리
     edgeData_diagonal = edgeDetectedArray(edgeData_diagonal, edgedetectDistance);
 
-    let image = new Jimp(420, 578, function (err, image) {
+    let image = new Jimp(width, height, function (err, image) {
         if (err) throw err;
 
         edgeData_diagonal.forEach((row, y) => {
@@ -47,7 +61,7 @@ async function edgeDetected(point2pointDistance, edgedetectDistance) {
             });
         });
 
-        image.write("./image/OCRsample_result.png", (err) => {
+        image.write("./image/result/sample1_result.png", (err) => {
             if (err) throw err;
         });
     });
@@ -79,7 +93,7 @@ function edgeDetectedArray(a, Benchmark) {
     return a;
 }
 
-edgeDetected(1, 30);
+edgeDetected(5, 30);
 //  input : point2pointDistance  edgedetectDistance
 //  point2pointDistance : 한 점과 edge판별할 점의 거리 예시) 3
 //  edgedetectDistance  : edge 로 판별 할 color 의 색상 거리 예시 30

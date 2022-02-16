@@ -2,18 +2,26 @@
 //  output : edge detected
 
 var pixels = require("image-pixels");
+var sizeOf = require("image-size");
 var fs = require("fs");
 const Jimp = require("jimp");
 
 async function edgeDetected(point2pointDistance, edgedetectDistance) {
     // load single source
-    var { data, width, height } = await pixels("./image/Lenna.png");
+
+    let width;
+    let height;
+    sizeOf("./image/result/Lenna.png", function (err, dimensions) {
+        width = dimensions.width;
+        height = dimensions.height;
+    });
+    var { data } = await pixels("./image/result/Lenna.png");
 
     let resultdata = [];
     let count = 0;
-    for (let i = 0; i < 512; i++) {
+    for (let i = 0; i < width; i++) {
         resultdata[i] = [];
-        for (let j = 0; j < 512; j++) {
+        for (let j = 0; j < height; j++) {
             resultdata[i][j] = [];
             for (let k = 0; k < 4; k++) {
                 if (k != 3) {
@@ -26,20 +34,20 @@ async function edgeDetected(point2pointDistance, edgedetectDistance) {
     }
     //resultdata : 1차원 데이터를 3차원 데이터로 width * height * 4(R, G, B, A)
     let edgeData_horizontal = [];
-    for (let i = 0; i < resultdata.length - point2pointDistance; i++) {
+    for (let i = 0; i < width - 1; i++) {
         //width version
         edgeData_horizontal[i] = [];
-        for (let j = 0; j < resultdata.length - point2pointDistance; j++) {
+        for (let j = 0; j < height - point2pointDistance - 1; j++) {
             //data[i][j] = r g b a
             edgeData_horizontal[i][j] = colorPointDistance(resultdata[i][j], resultdata[i][j + point2pointDistance]);
         }
     }
     //edgeData_horizontal : 자기 자신과 바로 오른쪽 점과의 공간좌표 RGB 에서의 거리
-    //edgeData_horizontal = edgeDetectedArray(edgeData_horizontal, edgedetectDistance);
+    edgeData_horizontal = edgeDetectedArray(edgeData_horizontal, edgedetectDistance);
 
-    console.log(edgeDetectedArray(edgeData_horizontal, edgedetectDistance));
+    // console.log(edgeDetectedArray(edgeData_horizontal, edgedetectDistance));
     // console.log(edgeData_horizontal);
-    let image = new Jimp(512, 512, function (err, image) {
+    let image = new Jimp(width, height, function (err, image) {
         if (err) throw err;
 
         edgeData_horizontal.forEach((row, y) => {
@@ -48,7 +56,7 @@ async function edgeDetected(point2pointDistance, edgedetectDistance) {
             });
         });
 
-        image.write("./image/result_horizontal.png", (err) => {
+        image.write("./image/result/Lenna_result.png", (err) => {
             if (err) throw err;
         });
     });
@@ -84,4 +92,4 @@ function edgeDetectedArray(a, Benchmark) {
     return a;
 }
 
-edgeDetected(3, 30);
+edgeDetected(1, 30);
