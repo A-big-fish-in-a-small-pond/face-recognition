@@ -11,17 +11,17 @@ async function edgeDetected(point2pointDistance, edgedetectDistance) {
 
     let width;
     let height;
-    sizeOf("./image/result/Lenna.png", function (err, dimensions) {
+    sizeOf("./image/result/sample2.png", function (err, dimensions) {
         width = dimensions.width;
         height = dimensions.height;
     });
-    var { data } = await pixels("./image/result/Lenna.png");
+    var { data } = await pixels("./image/result/sample2.png");
 
     let resultdata = [];
     let count = 0;
-    for (let i = 0; i < width; i++) {
+    for (let i = 0; i < height; i++) {
         resultdata[i] = [];
-        for (let j = 0; j < height; j++) {
+        for (let j = 0; j < width; j++) {
             resultdata[i][j] = [];
             for (let k = 0; k < 4; k++) {
                 if (k != 3) {
@@ -34,12 +34,12 @@ async function edgeDetected(point2pointDistance, edgedetectDistance) {
     }
     //resultdata : 1차원 데이터를 3차원 데이터로 width * height * 4(R, G, B, A)
     let edgeData_horizontal = [];
-    for (let i = 0; i < width - 1; i++) {
+    for (let i = 0; i < height - point2pointDistance - 1; i++) {
         //width version
         edgeData_horizontal[i] = [];
-        for (let j = 0; j < height - point2pointDistance - 1; j++) {
+        for (let j = 0; j < width - 1; j++) {
             //data[i][j] = r g b a
-            edgeData_horizontal[i][j] = colorPointDistance(resultdata[i][j], resultdata[i][j + point2pointDistance]);
+            edgeData_horizontal[i][j] = colorPointDistance(resultdata[i][j + point2pointDistance], resultdata[i][j]);
         }
     }
     //edgeData_horizontal : 자기 자신과 바로 오른쪽 점과의 공간좌표 RGB 에서의 거리
@@ -56,7 +56,7 @@ async function edgeDetected(point2pointDistance, edgedetectDistance) {
             });
         });
 
-        image.write("./image/result/Lenna_result.png", (err) => {
+        image.write("./image/result/sample2_hor_result.png", (err) => {
             if (err) throw err;
         });
     });
@@ -85,11 +85,11 @@ function edgeDetectedArray(a, Benchmark) {
                 //a[i][j] = 0x0000ffff;
                 //0x : 16진수라는 의미
                 //R, G, B, 투명도
-                a[i][j] = 0xffffffff;
+                a[i][j] = 0xffffff00;
             }
         }
     }
     return a;
 }
 
-edgeDetected(1, 30);
+edgeDetected(3, 20);

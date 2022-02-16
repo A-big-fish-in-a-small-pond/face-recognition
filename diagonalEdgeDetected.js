@@ -19,9 +19,9 @@ async function edgeDetected(point2pointDistance, edgedetectDistance) {
 
     let resultdata = [];
     let count = 0;
-    for (let i = 0; i < width; i++) {
+    for (let i = 0; i < height; i++) {
         resultdata[i] = [];
-        for (let j = 0; j < height; j++) {
+        for (let j = 0; j < width; j++) {
             resultdata[i][j] = [];
             for (let k = 0; k < 4; k++) {
                 if (k != 3) {
@@ -36,10 +36,10 @@ async function edgeDetected(point2pointDistance, edgedetectDistance) {
     //resultdata : 1차원 데이터를 3차원 데이터로 width * height * 4(R, G, B, A) g   dfdfasdf
     let edgeData_diagonal = [];
 
-    for (let i = 0; i < width - point2pointDistance - 1; i++) {
+    for (let i = 0; i < height - point2pointDistance - 1; i++) {
         //width version
         edgeData_diagonal[i] = [];
-        for (let j = 0; j < height - point2pointDistance - 1; j++) {
+        for (let j = 0; j < width - point2pointDistance - 1; j++) {
             //data[i][j] = r g b a
             try {
                 edgeData_diagonal[i][j] = colorPointDistance(resultdata[i][j], resultdata[i + point2pointDistance][j + point2pointDistance]);
@@ -61,7 +61,7 @@ async function edgeDetected(point2pointDistance, edgedetectDistance) {
             });
         });
 
-        image.write("./image/result/sample1_result.png", (err) => {
+        image.write("./image/result/sample1_dia_result.png", (err) => {
             if (err) throw err;
         });
     });
@@ -86,14 +86,14 @@ function edgeDetectedArray(a, Benchmark) {
                 a[i][j] = 0xff0000ff;
             } else {
                 //edge 가 아니면 파란색
-                a[i][j] = 0x0000ffff;
+                a[i][j] = 0x0000ff00;
             }
         }
     }
     return a;
 }
 
-edgeDetected(5, 30);
+edgeDetected(1, 10);
 //  input : point2pointDistance  edgedetectDistance
 //  point2pointDistance : 한 점과 edge판별할 점의 거리 예시) 3
 //  edgedetectDistance  : edge 로 판별 할 color 의 색상 거리 예시 30
