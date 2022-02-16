@@ -1,5 +1,6 @@
 //  input  : image
 //  output : edge detected
+//  horizontalEdgeDetected + verticalEdgeDetected
 
 var pixels = require("image-pixels");
 var sizeOf = require("image-size");
